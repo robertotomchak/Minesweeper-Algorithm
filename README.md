@@ -1,5 +1,5 @@
 # MINESWEEPER ALGORITHM
-#### Video Demo:  <URL HERE>
+#### Video Demo:  [<URL HERE>](https://youtu.be/3HaNfj8fxaQ)
 #### Description:
 This is a minesweeper game. Other than the usual content of a minesweeper, it also contains an algorithm who solves the game for you.
 
