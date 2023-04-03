@@ -1,6 +1,6 @@
 # MINESWEEPER ALGORITHM
-#### Video Demo:  https://youtu.be/3HaNfj8fxaQ
-#### Description:
+### Video Demo:  https://youtu.be/3HaNfj8fxaQ (obs: the project had some changes compared to when I created it to the CS50 course)
+### Description:
 This is a minesweeper game. Other than the usual content of a minesweeper, it also contains an algorithm who solves the game for you.
 
 In the images folder, you will find all images used in this project. Most of them where either created by me or collected via screenshots of the original minesweeper game, but some icons where collected on the internet. Here are the references:
@@ -19,17 +19,32 @@ Before explaining the python codes, here's a short explanation of the terms used
 
 If you want to know more about the rules of minesweeper, check out https://freeminesweeper.org/how-to-play-minesweeper.php (this is also the link of the "how to play" buttn inside the codes's interface).
 
-There are 3 Python codes in this project:
--functions: contains all functions that affect the minesweeper board, as well as a class for the tiles. They allow the player to play the game. It also contains the algorithm to solve the game for you;
+There are 4 Python codes (.py) and 1 Jupyter Notebook file (.ipynb) in this project:
+-functions: contains all functions that affect the minesweeper board, as well as a class for the tiles. They allow the player to play the game;
+-algorithm: contains the algorithm that can play the game;
 -interface: this is the main file of the game. It calls all the useful functions and defines the interface for the user to play in;
 -benchmarks: this file does not affect the game itself. It's purpose is to test how good the algorithm is.
+
+There's also a CSV file called "minesweeper_data" that contains the data generated from the "benchmarks.py" file.
+
+### Algorithm
+
+The algorithm uses 3 strategies to play the game:
+
+#### Strategy 1: Default
+This is the main strategy of the algorithm, which every player uses a lot during the game. It is divided in three parts:
+1. If a known tile with a number is touching <number of tile - number of marked bombs> unknown tiles, the unknown tiles must be bombs.
+2. If a known tile with a number is touching <number of tile> marked bombs, then the rest of unknown tiles must be bombs.
+3. If all bombs are marked in the board, free all the other unknown tiles.
+
+#### Strategy 2: Simulations
 
 According to my tests, this is the results of the algorithm (after 10,000 games for each mode):
 
 EASY (9x9, 10 bombs)
-% of Wins: 94.95
-Average Time of Wins: 0.0013417955823419219
-Average Time of Loses: 0.0007554937117170579
+% of Wins: 88.35
+Average Time of Wins: 0.0008571343564960197 seconds
+Average Time of Loses: 0.001110771080966671 seconds
 
 NORMAL (16x16, 40 bombs):
 % of Wins: 90.78
@@ -37,9 +52,9 @@ Average Time of Wins: 0.024174977304862445
 Average Time of Loses: 0.016808433543058384
 
 HARD (30x16, 99 bombs):
-% of Wins: 74.1
-Average Time of Wins: 0.12718681780754634
-Average Time of Loses: 0.08900342825296763
+% of Wins: 6.54
+Average Time of Wins: 0.02935 seconds
+Average Time of Loses: 0.0154 seconds
 
 
 All files contains multiple comments explaining what each function's purpose is, as well as its returning values.
