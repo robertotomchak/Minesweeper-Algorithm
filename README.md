@@ -25,6 +25,7 @@ There are 3 Python codes in this project:
 -benchmarks: this file does not affect the game itself. It's purpose is to test how good the algorithm is.
 
 According to my tests, this is the results of the algorithm (after 10,000 games for each mode):
+
 EASY (9x9, 10 bombs)
 % of Wins: 94.95
 Average Time of Wins: 0.0013417955823419219
