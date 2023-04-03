@@ -1,4 +1,5 @@
 # This is the main file of the game. It calls the functions necessary to play the game, as well as create the interfaces
+import algorithm
 import functions
 import pygame
 import time
@@ -269,7 +270,7 @@ def game_screen(n_rows=0, n_columns=0, n_bombs=0, board=[], start_time=0):
     tile_size = min((end_coords[0] - start_coords[0]) // functions.Tile.N_COLUMNS,
                     (end_coords[1] - start_coords[1]) // functions.Tile.N_ROWS)
 
-    algorithm = False  # turns True when players want the algorithm to play
+    algorithm_active = False  # turns True when players want the algorithm to play
     game_status = 0  # -1 for lost, 1 for won and 0 if not ended
     algorithm_speed = 0  # by default, the algorithm will run by its normal speed
     time_spent = start_time  # default time
@@ -278,16 +279,16 @@ def game_screen(n_rows=0, n_columns=0, n_bombs=0, board=[], start_time=0):
     while True:
         screen.fill((0, 0, 0))
         # if the algorithm is activated, let it play the game
-        if algorithm and game_status == 0:
+        if algorithm_active and game_status == 0:
             algorithm_start = time.time()
-            x, y, action = functions.algorithm(board)
+            x, y, action, _ = algorithm.algorithm(board)
             algorithm_end = time.time()
             algorithm_sleep = algorithm_speed - (algorithm_end - algorithm_start) if\
                 algorithm_speed > (algorithm_end - algorithm_start) else 0
             time.sleep(algorithm_sleep)
             if board[x][y].action(action, board) == -1:
                 game_status = -1
-                algorithm = False
+                algorithm_active = False
 
         for event in pygame.event.get():
             # stop game. Saves the board if game is not finished and is started
@@ -314,6 +315,7 @@ def game_screen(n_rows=0, n_columns=0, n_bombs=0, board=[], start_time=0):
                             started = True
                             start = time.time() - start_time
                         else:
+                            print(board[a][b].adjacent_unknowns, board[a][b].adjacent_bombs, board[a][b].symbol)
                             if board[a][b].action("F", board) == -1:
                                 game_status = -1
                     # mark bomb
@@ -328,7 +330,7 @@ def game_screen(n_rows=0, n_columns=0, n_bombs=0, board=[], start_time=0):
                         return 1
                     # algorithm button
                     elif y <= game_values["startY"] + 2 * game_values["button_sizeY"] + game_values["marginY"]:
-                        algorithm = True if not algorithm else False  # turns on and off
+                        algorithm_active = True if not algorithm_active else False  # turns on and off
                         # if game hasn't started, begins the game
                         if not started:
                             functions.start_game(board, auto=True)
@@ -355,7 +357,7 @@ def game_screen(n_rows=0, n_columns=0, n_bombs=0, board=[], start_time=0):
         # verify if game is won
         if functions.Tile.freed_tiles == functions.Tile.win_condition:
             game_status = 1
-            algorithm = False
+            algorithm_active = False
 
         # calculates time spent
         end = time.time()

@@ -22,6 +22,13 @@ class Tile:
         self.symbol = symbol
         self.coords = coords
 
+        # registers how many marked bombs are adjacent to that tile
+        self.adjacent_bombs = 0  # this attribute is only used for the algorithm
+        # registers how many unknown tiles (not marked nor freed) are adjacent to that tile
+        self.adjacent_unknowns = len(self.adjacent())  # this attribute is only used for the algorithm
+        # registers possible marked or freed tiles based on simulations
+        self.suppose_status = 0  # this attribute is only used for the algorithm
+
     # returns the coordinates of adjacent tiles
     def adjacent(self):
         adjacent_tiles = []
@@ -43,6 +50,14 @@ class Tile:
         self.symbol = str(self.status)
         Tile.freed_tiles += 1
 
+        # updates attributes for algorithm
+        for adjacent_tile in self.adjacent():
+            board[adjacent_tile[0]][adjacent_tile[1]].adjacent_unknowns -= 1
+
+        # if tile is a number, don't free adjacent tiles
+        if self.symbol in "12345678":
+            return None
+
         # frees all adjacent tiles. Stops when reach a tile with positive status
         for tile in self.adjacent():
             if board[tile[0]][tile[1]].status == 0:
@@ -50,6 +65,9 @@ class Tile:
             elif board[tile[0]][tile[1]].status != -1 and board[tile[0]][tile[1]].symbol == "X":
                 board[tile[0]][tile[1]].symbol = str(board[tile[0]][tile[1]].status)
                 Tile.freed_tiles += 1
+                # updates attributes for algorithm
+                for adjacent_tile in board[tile[0]][tile[1]].adjacent():
+                    board[adjacent_tile[0]][adjacent_tile[1]].adjacent_unknowns -= 1
         return None
 
     # gives a number to tiles that touch one or more bombs
@@ -88,11 +106,19 @@ class Tile:
             if self.symbol == "X":
                 Tile.marked_bombs += 1
                 self.symbol = "!"
+                # updates attributes for algorithm
+                for adjacent_tile in self.adjacent():
+                    board[adjacent_tile[0]][adjacent_tile[1]].adjacent_bombs += 1
+                    board[adjacent_tile[0]][adjacent_tile[1]].adjacent_unknowns -= 1
             elif self.symbol == "?":
                 self.symbol = "X"
             elif self.symbol == "!":
                 Tile.marked_bombs -= 1
                 self.symbol = "?"
+                # updates attributes for algorithm
+                for adjacent_tile in self.adjacent():
+                    board[adjacent_tile[0]][adjacent_tile[1]].adjacent_bombs -= 1
+                    board[adjacent_tile[0]][adjacent_tile[1]].adjacent_unknowns += 1
         return 0
 
 
@@ -114,12 +140,18 @@ def empty_board(rows=16, columns=30, bombs=99):
 # loads previous game, if exists
 # returns the game board if previous game exists. Else, returns an empty list
 def load_game():
-    # Set values to default
-    Tile.N_ROWS = 0
-    Tile.N_COLUMNS = 0
-    Tile.N_BOMBS = 0
-    Tile.marked_bombs = 0
-    Tile.freed_tiles = 0
+    # get information about the mode selected
+    with open("previous_game/mode.txt") as file:
+        rows = file.read().splitlines()
+        # if file is empty, there's no previous game
+        if not rows:
+            return [], 0
+        info = rows[0].split(" ")
+        Tile.N_ROWS = int(info[0])
+        Tile.N_COLUMNS = int(info[1])
+        Tile.N_BOMBS = int(info[2])
+    Tile.win_condition = Tile.N_ROWS * Tile.N_COLUMNS - Tile.N_BOMBS
+
     # status of each tile of the board
     with open("previous_game/status.txt", "r") as file:
         rows = file.read().splitlines()
@@ -136,9 +168,6 @@ def load_game():
             for j, status in enumerate(row):
                 if status != "":
                     board_row.append(Tile(status=int(status), coords=(i, j)))
-                if status == "-1":
-                    # if status is -1, it's a bomb
-                    Tile.N_BOMBS += 1
             board.append(board_row)
 
     # symbol of each tile of the board
@@ -147,6 +176,8 @@ def load_game():
         # if file is empty, there's no previous game
         if not rows:
             return -1
+        Tile.freed_tiles = 0
+        Tile.marked_bombs = 0
         for i, row in enumerate(rows):
             # stops when finds an empty row
             if not row:
@@ -162,24 +193,24 @@ def load_game():
                 elif symbol == "!":
                     Tile.marked_bombs += 1
             time_spent = int(rows[-1])
-    # Correcting the dimensions of the game
-    Tile.N_ROWS = len(board)
-    Tile.N_COLUMNS = len(board[0])
-    Tile.win_condition = Tile.N_ROWS * Tile.N_COLUMNS - Tile.N_BOMBS
-
     return board, time_spent
 
 
 # saves the game when players exits
 # returns nothing
 def save_game(board, time_spent):
-    # if board is empty, clears both files
+    # if board is empty, clears all files
     if not board and time_spent == 0:
         with open("previous_game/status.txt", "w") as file:
             file.write("")
         with open("previous_game/symbols.txt", "w") as file:
             file.write("")
+        with open("previous_game/mode.txt", "w") as file:
+            file.write("")
         return None
+
+    with open("previous_game/mode.txt", "w") as file:
+        file.write(f"{Tile.N_ROWS} {Tile.N_COLUMNS} {Tile.N_BOMBS}")
 
     with open("previous_game/status.txt", "w") as file:
         for row in board:
@@ -229,46 +260,3 @@ def start_game(board, a=0, b=0, auto=False):
     board[a][b].free(board)
 
     return None
-
-
-# the algorithm that plays the game by itself. It supposes that the board has already been initialized
-# returns the coordinates of the changed tile and the action (free or mark)
-def algorithm(board):
-    for row in board:
-        for tile in row:
-            # if all bombs are marked, start freeing all other tiles
-            if Tile.marked_bombs == Tile.N_BOMBS:
-                if tile.symbol == "X":
-                    return tile.coords[0], tile.coords[1], "F"
-
-            # if tile is known and a number
-            if tile.symbol in "12345678":
-                # calculates number of bombs and unknown tiles
-                n_bombs = 0
-                n_unknown = 0
-                adjacent_tiles = tile.adjacent()
-                for x, y in adjacent_tiles:
-                    if board[x][y].symbol == "!":
-                        n_bombs += 1
-                    elif board[x][y].symbol == "X":
-                        n_unknown += 1
-
-                # if we know all bombs adjacent to tile, free the other adjacent tiles
-                if n_bombs == int(tile.symbol):
-                    for x, y in adjacent_tiles:
-                        if board[x][y].symbol == "X":
-                            return x, y, "F"
-                # if the number of unknowns is the same as remaining bombs, they must be bombs
-                elif n_bombs + n_unknown == int(tile.symbol):
-                    for x, y in adjacent_tiles:
-                        if board[x][y].symbol == "X":
-                            return x, y, "M"
-                else:
-                    pass
-    # if ends loop without marking bombs or freeing tiles, try to guess a free tile
-    while True:
-        x = random.randint(0, Tile.N_ROWS-1)
-        y = random.randint(0, Tile.N_COLUMNS-1)
-        # it's only going to guess if tile is unknown
-        if board[x][y].symbol in "X?":
-            return x, y, "F"
