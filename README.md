@@ -38,8 +38,17 @@ This is the main strategy of the algorithm, which every player uses a lot during
 3. If all bombs are marked in the board, free all the other unknown tiles.
 
 #### Strategy 2: Simulations
+This is a more complex strategy, but the idea is to follow this algorithm:
+1. If a tile with a number only has one bomb left to find (and wasn't found in Strategy 1), create a scenario for each unknown tile, supposing it has the bomb
+2. Test if that scenario is possible (by analysing what happens to adjacent tiles whe that bomb is placed)
+3. In the scenarios that are possibles, see what actions are made to tiles that are adjacent to all the possible bombs
+4. If a certain action happens in all possible scenarios, that apply that action (which can be free a tile or mark a tile)
+  
+#### Strategy 3: Guesses
+If the algorithm loops through the entire board and doesn't use any of the two previous strategies, it frees a random unknown tile from the board.
 
-According to my tests, this is the results of the algorithm (after 10,000 games for each mode):
+  
+According to my tests, this is the results of the algorithm (analysing 10,000 games for each mode):
 
 EASY (9x9, 10 bombs)
 % of Wins: 88.35
@@ -47,9 +56,9 @@ Average Time of Wins: 0.0008571343564960197 seconds
 Average Time of Loses: 0.001110771080966671 seconds
 
 NORMAL (16x16, 40 bombs):
-% of Wins: 90.78
-Average Time of Wins: 0.024174977304862445
-Average Time of Loses: 0.016808433543058384
+% of Wins: 65.78
+Average Time of Wins: 0.005658274473988854 seconds
+Average Time of Loses: 0.004797840313490617 seconds
 
 HARD (30x16, 99 bombs):
 % of Wins: 6.54
