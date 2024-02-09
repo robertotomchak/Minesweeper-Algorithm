@@ -77,6 +77,11 @@ ALG_SPEED_TEXT = {
     "Y": GAME_BUTTONS["START_Y"] + 3 * (GAME_BUTTONS["SIZE_Y"] + GAME_BUTTONS["MARGIN_Y"]) + 40
 }
 
+# title whe game ends ("you won" or "game over")
+END_TITLE = {
+    "Y": 20
+}
+
 
 # characteristics of each difficulty, format: (n_rows, n_columns, n_bombs) and color
 DIFFICULTY_COLORS = {
@@ -84,6 +89,7 @@ DIFFICULTY_COLORS = {
     "NORMAL": COLORS["ORANGE"],
     "HARD": COLORS["RED"]
 }
+
 DIFFICULTY = {
     "EASY": (9, 9, 10),
     "NORMAL": (16, 16, 40),
@@ -367,12 +373,14 @@ def game_screen(board, game_started, buttons):
         screen.blit(text3, (ALG_SPEED_TEXT["X"], ALG_SPEED_TEXT["Y"]))
 
         draw_board(board, tile_size)
-        if game_status == 1:
-            screen.blit(end_font.render("YOU WIN", True, COLORS["GREEN"]), (405, 20))
-        elif game_status == -1:
-            screen.blit(end_font.render("GAME OVER", True, COLORS["RED"]), (350, 20))
-        else:
+        if game_status == 0:
             pass
+        else:
+            if game_status == 1:
+                end_text = end_font.render("YOU WIN", True, COLORS["GREEN"])
+            else:
+                end_text = end_font.render("GAME OVER", True, COLORS["RED"])
+            screen.blit(end_text, ((SCREEN_WIDTH - end_text.get_width()) // 2, END_TITLE["Y"]))
         pygame.display.update()
 
         # calculates time spent
