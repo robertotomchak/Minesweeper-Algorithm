@@ -2,7 +2,7 @@
 This is the main file of the game, which calls other modules and creates the game's interface
 '''
 
-from algorithm import Algorithm
+from Algorithm import Algorithm
 from Board import Board
 from Element import Element, Button
 import pygame

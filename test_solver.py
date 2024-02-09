@@ -5,7 +5,7 @@ To get more accurate results, no interface is used, just the algorithm playing t
 Change the constants N and MODE to make different analysis
 All data is stored in the "minesweeper_data.csv" file, and some of the results are outputted at the end
 '''
-from algorithm import Algorithm
+from Algorithm import Algorithm
 from Board import Board
 import time
 import pandas as pd
