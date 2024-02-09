@@ -133,6 +133,12 @@ normal_img = pygame.image.load("images/normal.png")
 hard_img = pygame.image.load("images/hard.png")
 begin_img = pygame.image.load("images/begin.png")
 
+
+'''
+load_buttons: loads elements and buttons for both screens
+@parameters: none
+@return: dict whose keys are "initial" and "game" (name of screens) and values are the elements and buttons objects to be drawn
+'''
 def load_buttons():
     # initial screen buttons
     initial_buttons = {
@@ -201,8 +207,12 @@ def draw_buttons(buttons):
     return None
 
 
-# function for initial screen
-# returns -1 if player closes the game. Else, returns the chosen difficulty
+'''
+initial_screen: creates the initial screen (when you enter the game and can select the difficulty)
+@parameters:
+    buttons: list with the elements/buttons objects to be drawn
+@return: -1 if player closes the game; otherwise, returns a sting with the selected difficulty
+'''
 def initial_screen(buttons):
     # text style for selected mode
     font = pygame.font.Font("freesansbold.ttf", 20)
@@ -254,6 +264,14 @@ def initial_screen(buttons):
 # function for game screen
 # if there's a previous game, uses previous board. Else, creates a new board
 # if players exits, returns -1. If players wants to play a new game, returns 1
+'''
+game_screen: creates the screen for the game (when you're playing a game of minesweeper)
+@parameters:
+    board: the board object of the game
+    game_started: True if there was an existing game; False if it's a new game
+    buttons: list with the buttons/elements objects to be drawn
+@return: -1 if player exists, 1 if player clicks on "new game"
+'''
 def game_screen(board, game_started, buttons):
     # text style for marked_bombs and time spent
     normal_font = pygame.font.Font("freesansbold.ttf", 35)
