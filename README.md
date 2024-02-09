@@ -50,8 +50,7 @@ If the algorithm loops through the entire board and doesn't use any of the two p
 
 The algorithm saves the possible plays in a queue, so it doesn't have to loop through the entire board everytime it is called, making it a lot faster.
 
-#
-
+#### Performance of the Algorithm
   
 According to my tests, this is the results of the algorithm (analysing 10,000 games for each mode):
 
@@ -66,9 +65,10 @@ Average Time of Wins: 0.005658274473988854 seconds
 Average Time of Loses: 0.004797840313490617 seconds
 
 HARD (30x16, 99 bombs):
-% of Wins: 6.54
-Average Time of Wins: 0.02935 seconds
-Average Time of Loses: 0.0154 seconds
+% of Wins: 30.35
+Average Time: 0.05756 seconds
+Average Time of Wins: 0.06189 seconds
+Average Time of Loses: 0.05567 seconds
 
 
 All files contains multiple comments explaining what each function's purpose is, as well as its returning values.
