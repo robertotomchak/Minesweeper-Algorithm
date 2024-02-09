@@ -45,19 +45,20 @@ This is a more complex strategy, that used the concept of Constraint Satisfactio
 4. Get all possible solutions of the system of equations above;
 5. If a variable has the same value in all possible solutions, then we can conclude if there is a bomb or not in that tile.
   
-#### Strategy 3: Guesses
+#### Strategy 3: Random Guesses
 If the algorithm loops through the entire board and doesn't use any of the two previous strategies, it frees a random unknown tile from the board.
 
 The algorithm saves the possible plays in a queue, so it doesn't have to loop through the entire board everytime it is called, making it a lot faster.
+
+The first click of the algorithm is in a random tile (I tested some other strategies, like click on the middle or on an edge, and all seem to have about the same results, but random tile was the best, so it's the default strategy). You can change it in the "first_play" method of the Algorithm class.
 
 #### Performance of the Algorithm
   
 According to my tests, this is the results of the algorithm (analysing 10,000 games for each mode):
 
 EASY (9x9, 10 bombs)
-% of Wins: 88.35
-Average Time of Wins: 0.0008571343564960197 seconds
-Average Time of Loses: 0.001110771080966671 seconds
+% of Wins: 94.48
+Average Time: 0.00316 seconds
 
 NORMAL (16x16, 40 bombs):
 % of Wins: 65.78
@@ -67,8 +68,5 @@ Average Time of Loses: 0.004797840313490617 seconds
 HARD (30x16, 99 bombs):
 % of Wins: 30.35
 Average Time: 0.05756 seconds
-Average Time of Wins: 0.06189 seconds
-Average Time of Loses: 0.05567 seconds
-
 
 All files contains multiple comments explaining what each function's purpose is, as well as its returning values.
