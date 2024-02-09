@@ -7,6 +7,29 @@ In the images folder, you will find all images used in this project. Most of the
 - Bomb image: https://www.flaticon.com/free-icons/bomb"
 - Flag image: https://www.flaticon.com/free-icons/destination"
 
+### How to use
+The game was made on Linux, so it's possible it might not work on other operating systems.
+#### Installing libraries
+First, install the necessary libraries:
+```console
+pip install pygame
+```
+
+The other libraries should already be installed (since they are a part of python's standard library), but check for terminal's error messages related to this.
+
+I had some problems with pygame, maybe this link can help if you have any problems: https://stackoverflow.com/questions/72110384/libgl-error-mesa-loader-failed-to-open-iris.
+
+#### Interface
+To play the game, just run:
+```console
+pythn3 interface.py
+```
+
+#### Testing Solver
+To test the solver, just run:
+```console
+python3 test_solver.py
+```
 
 ### Terminology
 Before explaining the python codes, here's a short explanation of the terms used:
@@ -56,17 +79,14 @@ The first click of the algorithm is in a random tile (I tested some other strate
   
 According to my tests, this is the results of the algorithm (analysing 10,000 games for each mode):
 
-EASY (9x9, 10 bombs)
-% of Wins: 94.48
-Average Time: 0.00316 seconds
+EASY (9x9, 10 bombs):
+- Win Rate: 94.48%
+- Average Time: 0.00316 seconds
 
 NORMAL (16x16, 40 bombs):
-% of Wins: 65.78
-Average Time of Wins: 0.005658274473988854 seconds
-Average Time of Loses: 0.004797840313490617 seconds
+- Win Rate: 80.74%
+- Average Time: 0.02067 seconds
 
 HARD (30x16, 99 bombs):
-% of Wins: 30.35
-Average Time: 0.05756 seconds
-
-All files contains multiple comments explaining what each function's purpose is, as well as its returning values.
+- Win Rate: 30.35%
+- Average Time: 0.05756 seconds
