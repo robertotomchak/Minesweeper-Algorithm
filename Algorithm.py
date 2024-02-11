@@ -60,7 +60,6 @@ class Algorithm:
     @return: a tuple (x,y) with the coordinates of the tile to be clicked
     """
     def first_play(self):
-        # for now, the tile is choosen randomly
         return (randint(0, self.board_size[0]-1), randint(0, self.board_size[1]-1))
     
 
@@ -140,6 +139,7 @@ class Algorithm:
         self
         board: the board of the game
     @return: a list with all equations
+    obs: an equation is a dict with variables -> matrix of coordinates and results -> list of numbers
     """
     def get_equations(self):
         # an equation is a dict with "variables" (list of coordinates of tiles) and a "result" (what their sum should be)
