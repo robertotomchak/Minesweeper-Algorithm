@@ -55,10 +55,10 @@ class Board:
         return None
 
     '''
-    place_bombs: places <self.n_bombs> in the board
+    place_bombs: places <self.n_bombs> in the board and makes the first free click
     @parameters:
         self
-        x, y: coordinates of clicked tile (first clicked tile cannot have bombs)
+        x, y: coordinates of clicked tile
     @return: none
     '''
     def place_bombs(self, x, y):
@@ -66,20 +66,17 @@ class Board:
         no_bombs = [(x, y)]
         no_bombs.extend(self.adjacent_tiles(x, y))
 
-        # puts bombs until finished
-        board_bombs = 0
-        while board_bombs < self.n_bombs:
-            a, b = random.randint(0, self.n_rows-1), random.randint(0, self.n_columns-1)
-            # if tile can have a bomb, turn it into a bomb
-            if (a, b) in no_bombs:
-                continue
-
+        # creating a list with all possible bomb tiles
+        possible_bombs = []
+        for i in range(self.n_rows):
+            for j in range(self.n_columns):
+                if (i, j) not in no_bombs:
+                    possible_bombs.append((i, j))
+        random.shuffle(possible_bombs)  # shuffling to get random positions
+        # putting bombs in the first <n_bombs> tiles of the list
+        for a, b in possible_bombs[:self.n_bombs]:
             self.tiles_status[a][b] = -1
-            no_bombs.append((a,b))
-            board_bombs += 1
-
-
-            # update adjacent tiles (if aren't bombs)
+            # update adjacent tiles
             adj_tiles = self.adjacent_tiles(a, b)
             for coords in adj_tiles:
                 if self.tiles_status[coords[0]][coords[1]] != -1:
