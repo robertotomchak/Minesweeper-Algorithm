@@ -82,19 +82,19 @@ END_TITLE = {
     "Y": 20
 }
 
-
 # characteristics of each difficulty, format: (n_rows, n_columns, n_bombs) and color
+DIFFICULTY = {
+    "EASY": (9, 9, 10),
+    "NORMAL": (16, 16, 40),
+    "HARD": (16, 30, 99)
+}
+
 DIFFICULTY_COLORS = {
     "EASY": COLORS["GREEN"],
     "NORMAL": COLORS["ORANGE"],
     "HARD": COLORS["RED"]
 }
 
-DIFFICULTY = {
-    "EASY": (9, 9, 10),
-    "NORMAL": (16, 16, 40),
-    "HARD": (16, 30, 99)
-}
 
 # initialize pygame and create screen
 pygame.init()
@@ -107,21 +107,6 @@ pygame.display.set_icon(icon)
 
 # Add images
 
-# tile images
-unknown_tile_img = pygame.image.load("images/unknown_tile.png")
-free_tile_img = pygame.image.load("images/free_tile.png")
-marked_tile_img = pygame.image.load("images/marked_tile.png")
-question_tile_img = pygame.image.load("images/question_tile.png")
-one_tile_img = pygame.image.load("images/one_tile.png")
-two_tile_img = pygame.image.load("images/two_tile.png")
-three_tile_img = pygame.image.load("images/three_tile.png")
-four_tile_img = pygame.image.load("images/four_tile.png")
-five_tile_img = pygame.image.load("images/five_tile.png")
-six_tile_img = pygame.image.load("images/six_tile.png")
-seven_tile_img = pygame.image.load("images/seven_tile.png")
-eight_tile_img = pygame.image.load("images/eight_tile.png")
-bomb_tile_img = pygame.image.load("images/bomb_tile.png")
-
 marked_bombs_img = pygame.image.load("images/marked_bombs.png")
 time_display_img = pygame.image.load("images/time_display.png")
 algorithm_speed_controller_img = pygame.image.load("images/algspeed_controller.png")
@@ -132,6 +117,43 @@ easy_img = pygame.image.load("images/easy.png")
 normal_img = pygame.image.load("images/normal.png")
 hard_img = pygame.image.load("images/hard.png")
 begin_img = pygame.image.load("images/begin.png")
+
+
+'''
+resize_tiles: resizes all tile's images to the desired tile size
+@parameters:
+    tile_images: dict whose keys are tile's possible symbols and values are the loaded images
+    tile_size: size of each tile (both x and y sizes)
+@return: None
+'''
+def resize_tiles(tile_images, tile_size):
+    for symbol, image in tile_images.items():
+        tile_images[symbol] = pygame.transform.scale(image, (tile_size, tile_size))
+    return None
+
+'''
+load_tiles: loads tile's images
+@parameters: none
+@return: dict whose keys are tile's possible symbols and values are the loaded images
+obs: also used to reset shape of tiles
+'''
+def load_tiles():
+    return {
+    "X": pygame.image.load("images/unknown_tile.png"),
+    "!": pygame.image.load("images/marked_tile.png"),
+    "?": pygame.image.load("images/question_tile.png"),
+    "0": pygame.image.load("images/free_tile.png"),
+    "1": pygame.image.load("images/one_tile.png"),
+    "2": pygame.image.load("images/two_tile.png"),
+    "3": pygame.image.load("images/three_tile.png"),
+    "4": pygame.image.load("images/four_tile.png"),
+    "5": pygame.image.load("images/five_tile.png"),
+    "6": pygame.image.load("images/six_tile.png"),
+    "7": pygame.image.load("images/seven_tile.png"),
+    "8": pygame.image.load("images/eight_tile.png"),
+    "B": pygame.image.load("images/bomb_tile.png")
+}
+
 
 
 '''
@@ -168,30 +190,14 @@ def load_buttons():
 draw_board: draws all tiles into the screen
 @parameters:
     board: the Board object with all info from the game
+    tile_images: dict whose keys are tile's possible symbols and values are the loaded images
     tile_size: the size of each individual tile
 @return: None
 '''
-def draw_board(board, tile_size):
-    # images based on symbol
-    images = {
-        "X": pygame.transform.scale(unknown_tile_img, (tile_size, tile_size)),
-        "0": pygame.transform.scale(free_tile_img, (tile_size, tile_size)),
-        "!": pygame.transform.scale(marked_tile_img, (tile_size, tile_size)),
-        "?": pygame.transform.scale(question_tile_img, (tile_size, tile_size)),
-        "1": pygame.transform.scale(one_tile_img, (tile_size, tile_size)),
-        "2": pygame.transform.scale(two_tile_img, (tile_size, tile_size)),
-        "3": pygame.transform.scale(three_tile_img, (tile_size, tile_size)),
-        "4": pygame.transform.scale(four_tile_img, (tile_size, tile_size)),
-        "5": pygame.transform.scale(five_tile_img, (tile_size, tile_size)),
-        "6": pygame.transform.scale(six_tile_img, (tile_size, tile_size)),
-        "7": pygame.transform.scale(seven_tile_img, (tile_size, tile_size)),
-        "8": pygame.transform.scale(eight_tile_img, (tile_size, tile_size)),
-        "B": pygame.transform.scale(bomb_tile_img, (tile_size, tile_size))
-
-    }
+def draw_board(board, tile_images, tile_size):
     for i, row in enumerate(board.tiles_symbol):
         for j, tile in enumerate(row):
-            screen.blit(images[tile], (BOARD_START[0] + j * tile_size, BOARD_START[1] + i * tile_size))
+            screen.blit(tile_images[tile], (BOARD_START[0] + j * tile_size, BOARD_START[1] + i * tile_size))
     return None
 
 
@@ -211,7 +217,7 @@ def draw_buttons(buttons):
 initial_screen: creates the initial screen (when you enter the game and can select the difficulty)
 @parameters:
     buttons: list with the elements/buttons objects to be drawn
-@return: -1 if player closes the game; otherwise, returns a sting with the selected difficulty
+@return: empty string if player quits game; otherwise, string containing the selected difficulty
 '''
 def initial_screen(buttons):
     # text style for selected mode
@@ -225,7 +231,7 @@ def initial_screen(buttons):
         for event in pygame.event.get():
             # close the game
             if event.type == pygame.QUIT:
-                return -1
+                return ""
             # left click on something
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 x, y = pygame.mouse.get_pos()
@@ -258,6 +264,7 @@ def initial_screen(buttons):
 
         pygame.display.update()
 
+    # should never be reacher
     return None
 
 
@@ -270,7 +277,7 @@ game_screen: creates the screen for the game (when you're playing a game of mine
     board: the board object of the game
     game_started: True if there was an existing game; False if it's a new game
     buttons: list with the buttons/elements objects to be drawn
-@return: -1 if player exists, 1 if player clicks on "new game"
+@return: True if player clicks on "new game", False if player quits
 '''
 def game_screen(board, game_started, buttons):
     # text style for marked_bombs and time spent
@@ -281,8 +288,10 @@ def game_screen(board, game_started, buttons):
     small_font = pygame.font.Font("freesansbold.ttf", 15)
 
     # select tile size based on available space
+    tile_images = load_tiles()
     tile_size = min((BOARD_END[0] - BOARD_START[0]) // board.n_columns,
                     (BOARD_END[1] - BOARD_START[1]) // board.n_rows)
+    resize_tiles(tile_images, tile_size)
 
     algorithm_active = False  # turns True when players want the algorithm to play
     game_status = 0  # -1 for lost, 1 for won and 0 if not ended
@@ -316,7 +325,7 @@ def game_screen(board, game_started, buttons):
                 else:
                     for file in os.listdir("previous_game"):
                         os.remove("previous_game/" + file)
-                return -1
+                return False
             
             # click on screen
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -345,7 +354,7 @@ def game_screen(board, game_started, buttons):
                     # deletes previous game (if any)
                     for file in os.listdir("previous_game"):
                         os.remove("previous_game/" + file)
-                    return 1
+                    return True
                 # algorithm button
                 elif buttons["algorithm"].clicked(x, y):
                     algorithm_active = not(algorithm_active) # turns on and off
@@ -390,7 +399,7 @@ def game_screen(board, game_started, buttons):
         text3 = small_font.render("algorithm speed: " + str(round(algorithm_speed, 1)), True, COLORS["WHITE"])
         screen.blit(text3, (ALG_SPEED_TEXT["X"], ALG_SPEED_TEXT["Y"]))
 
-        draw_board(board, tile_size)
+        draw_board(board, tile_images, tile_size)
         if game_status == 0:
             pass
         else:
@@ -423,26 +432,20 @@ def main():
     if not board:
         mode = initial_screen(buttons["initial"])
         # exits game
-        if mode == -1:
+        if not(mode):
             return None
-        type_game = DIFFICULTY[mode]
-        board = Board(*type_game)
+        board = Board(*DIFFICULTY[mode])
         value = game_screen(board, False, buttons["game"])
     else:
         value = game_screen(board, True, buttons["game"])
-    # runs the game while player doesn't exit
-    while True:
-        # exit game
-        if value == -1:
-            return None
-        # create new game
-        if value == 1:
-            mode = initial_screen(buttons["initial"])
-            if mode == -1:
-                return None
-            type_game = DIFFICULTY[mode]
-            board = Board(*type_game)
-            value = game_screen(board, False, buttons["game"])
+    # runs the game while player doesn't exit (exit -> value is False)
+    while value:
+        mode = initial_screen(buttons["initial"])
+        if not(mode):
+            break
+        board = Board(*DIFFICULTY[mode])
+        value = game_screen(board, False, buttons["game"])
+    return None
 
 
 # runs code
