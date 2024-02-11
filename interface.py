@@ -11,6 +11,7 @@ import webbrowser
 import random
 import os
 
+
 # colors used in this project
 COLORS = {
     "BLACK": (0, 0, 0),
@@ -107,16 +108,17 @@ pygame.display.set_icon(icon)
 
 # Add images
 
-marked_bombs_img = pygame.image.load("images/marked_bombs.png")
-time_display_img = pygame.image.load("images/time_display.png")
-algorithm_speed_controller_img = pygame.image.load("images/algspeed_controller.png")
-
 # initial screen images
 initial_title_img = pygame.image.load("images/initial_title.png")
 easy_img = pygame.image.load("images/easy.png")
 normal_img = pygame.image.load("images/normal.png")
 hard_img = pygame.image.load("images/hard.png")
 begin_img = pygame.image.load("images/begin.png")
+
+# game screen images
+marked_bombs_img = pygame.image.load("images/marked_bombs.png")
+time_display_img = pygame.image.load("images/time_display.png")
+algorithm_speed_controller_img = pygame.image.load("images/algspeed_controller.png")
 
 
 '''
@@ -155,7 +157,6 @@ def load_tiles():
 }
 
 
-
 '''
 load_buttons: loads elements and buttons for both screens
 @parameters: none
@@ -181,7 +182,6 @@ def load_buttons():
         "marked_bombs": Element("images/marked_bombs.png", BOARD_START[0] + GAME_DISPLAYS["MARGIN_X"], BOARD_END[1] + GAME_DISPLAYS["MARGIN_Y"], GAME_DISPLAYS["SIZE_X"], GAME_DISPLAYS["SIZE_Y"]),
         "time_spent": Element("images/time_display.png", BOARD_END[0] - (GAME_DISPLAYS["MARGIN_X"] + GAME_DISPLAYS["SIZE_X"]), BOARD_END[1] + GAME_DISPLAYS["MARGIN_Y"], GAME_DISPLAYS["SIZE_X"], GAME_DISPLAYS["SIZE_Y"])
     }
-
     
     return {"initial": initial_buttons, "game": game_buttons}
 
@@ -264,13 +264,10 @@ def initial_screen(buttons):
 
         pygame.display.update()
 
-    # should never be reacher
+    # should never be reached
     return None
 
 
-# function for game screen
-# if there's a previous game, uses previous board. Else, creates a new board
-# if players exits, returns -1. If players wants to play a new game, returns 1
 '''
 game_screen: creates the screen for the game (when you're playing a game of minesweeper)
 @parameters:
@@ -414,6 +411,7 @@ def game_screen(board, game_started, buttons):
         end_time = time.time()
         if game_started and game_status == 0:
             board.time_spent += (end_time - start_time)
+
 
 
 # main function
