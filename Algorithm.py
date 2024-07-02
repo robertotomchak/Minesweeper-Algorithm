@@ -216,35 +216,45 @@ class Algorithm:
     """
     def generate_solutions(self, equations, variables, aux, i, solutions):
         if i == len(variables):
-            if self.isValid(equations, variables, aux):
-                solutions.append(aux.copy())
+            solutions.append(aux.copy())
             return
         
         aux[i] = 0
-        self.generate_solutions(equations, variables, aux, i+1, solutions)
+        if self.isValid(equations, variables, aux, i):
+            self.generate_solutions(equations, variables, aux, i+1, solutions)
 
         aux[i] = 1
-        self.generate_solutions(equations, variables, aux, i+1, solutions)
+        if self.isValid(equations, variables, aux, i):
+            self.generate_solutions(equations, variables, aux, i+1, solutions)
         
         return None
     
 
     """
-    isValid: checks if given solutions is valid
+    isValid: checks if given solutions is possibly valid (so far, doesnt create a contradiction)
     @parameters:
         self
         equations: list with all equations
         variables: dict where keys are coordinates (x, y) and values are their position in the aux array
         aux: list with values of the variables (0 -> no bomb, 1 -> bomb)
+        i: index of last variable with defined value
     @return: True if solution is valid, False otherwise
     """
-    def isValid(self, equations, variables, aux):
+    def isValid(self, equations, variables, aux, i):
         for eq in equations:
             ans = 0
+            count = 0
             for var in eq["variables"]:
-                ans += aux[variables[var]]
-            # if any of the equations is not satisfied, it's not valid
-            if ans != eq["result"]:
+                index = variables[var]
+                if index <= i:
+                    count += 1
+                    ans += aux[index]
+            # if ans cannot reach result, is not valid
+            remaining = len(eq["variables"]) - count
+            lower = ans
+            upper = ans + remaining
+            result = eq["result"]
+            if upper < result or lower > result:
                 return False
         return True
     
