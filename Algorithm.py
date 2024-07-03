@@ -106,7 +106,7 @@ class Algorithm:
                 for eq in equations:
                     if (i,j) in eq["variables"]:
                         tile_equations.append(eq)
-                conclusions = self.solve_equations(tile_equations)
+                conclusions = self.solve_equations(tile_equations) if len(tile_equations) else {}
                 for var in conclusions:
                     # no conclusion
                     if conclusions[var] == -1:
@@ -162,9 +162,9 @@ class Algorithm:
                     elif tile_symbol in "!":
                         n_marked_adjacents += 1
                     
-
-                res = int(tile) - n_marked_adjacents  # how many adjacent tiles have bombs that are still unmarked
-                equations.append({"variables": unknown_tiles, "result": res})
+                if len(unknown_tiles):
+                    res = int(tile) - n_marked_adjacents  # how many adjacent tiles have bombs that are still unmarked
+                    equations.append({"variables": unknown_tiles, "result": res})
         return equations
     
 
