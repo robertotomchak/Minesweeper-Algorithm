@@ -78,47 +78,41 @@ class Algorithm:
                 return (x, y, action, strategy) if self.return_strategy else (x, y, action)
             
         # if no plays available, finds possible plays
-        equations = self.get_equations()
+        equations, variables = self.get_equations()
 
         # checks for trivial cases (all adjacent tiles have to be marked or all be freed)
-        for eq in equations:
-            # remaining unknowns are bombs
-            if len(eq["variables"]) == eq["result"]:
-                for var in eq["variables"]:
-                    self.plays.append((var[0], var[1], "right", "s"))
-            # remaining unknowns are non-bombs
-            elif eq["result"] == 0:
-                for var in eq["variables"]:
-                    self.plays.append((var[0], var[1], "left", "s"))
-        if not self.plays.empty():
+        value = self.simple_strategy(equations, variables)
+        if value:
+            for var, res in value.items():
+                a, b = var
+                if res == 0:
+                    self.plays.append((a, b, "left", "s"))
+                else:
+                    self.plays.append((a, b, "right", "s"))
             x, y, action, strategy = self.plays.dequeue()
             return (x, y, action, strategy) if self.return_strategy else (x, y, action)
         
         # if no possible plays were found, go for second strategy
-        for i, row in enumerate(self.board):
-            for j, tile in enumerate(row):
-                # only looks for plays in unknown tiles
-                if tile not in "X":
+        for tile in variables:
+            # get equations where this tile is in
+            tile_equations = []
+            for eq in equations:
+                vars, res = eq
+                if tile in vars:
+                    tile_equations.append(eq)
+            conclusions = self.solve_equations(tile_equations)
+            for var, value in conclusions.items():
+                # no conclusion
+                if value == -1:
                     continue
-
-                # get equations where this tile is in
-                tile_equations = []
-                for eq in equations:
-                    if (i,j) in eq["variables"]:
-                        tile_equations.append(eq)
-                conclusions = self.solve_equations(tile_equations) if len(tile_equations) else {}
-                for var in conclusions:
-                    # no conclusion
-                    if conclusions[var] == -1:
-                        continue
-                    # no bomb
-                    if conclusions[var] == 0:
-                        a, b = var
-                        self.plays.append((a, b, "left", "c"))
-                    # bomb
-                    else:
-                        a, b = var
-                        self.plays.append((a, b, "right", "c"))
+                # no bomb
+                if value == 0:
+                    a, b = var
+                    self.plays.append((a, b, "left", "c"))
+                # bomb
+                else:
+                    a, b = var
+                    self.plays.append((a, b, "right", "c"))
         if not self.plays.empty():
             x, y, action, strategy = self.plays.dequeue()
             return (x, y, action, strategy) if self.return_strategy else (x, y, action)
@@ -145,6 +139,7 @@ class Algorithm:
         # an equation is a dict with "variables" (list of coordinates of tiles) and a "result" (what their sum should be)
         # 1 -> has bomb, 0 -> no bomb
         equations = []
+        variables = set()
         for i, row in enumerate(self.board):
             for j, tile in enumerate(row):
                 # only creates equations based on freed tiles that touch bombs
@@ -158,14 +153,28 @@ class Algorithm:
                 for a,b in adj_tiles:
                     tile_symbol = self.board[a][b]
                     if tile_symbol in "X":
+                        variables.add((a, b))
                         unknown_tiles.append((a,b))
                     elif tile_symbol in "!":
                         n_marked_adjacents += 1
                     
                 if len(unknown_tiles):
                     res = int(tile) - n_marked_adjacents  # how many adjacent tiles have bombs that are still unmarked
-                    equations.append({"variables": unknown_tiles, "result": res})
-        return equations
+                    equations.append((unknown_tiles, res))
+        return equations, list(variables)
+    
+
+    def simple_strategy(self, equations, variables):
+        value = {}
+        for eq in equations:
+            tiles, res = eq
+            if len(tiles) == res:
+                for tile in tiles:
+                    value[tile] = 1
+            elif res == 0:
+                for tile in tiles:
+                    value[tile] = 0
+        return value
     
 
     """
@@ -179,7 +188,8 @@ class Algorithm:
         variables = {}
         i = 0
         for eq in equations:
-            for var in eq["variables"]:
+            vars, res = eq
+            for var in vars:
                 if var not in variables:
                     variables[var] = i
                     i += 1
@@ -242,19 +252,19 @@ class Algorithm:
     """
     def isValid(self, equations, variables, aux, i):
         for eq in equations:
+            vars, res = eq
             ans = 0
             count = 0
-            for var in eq["variables"]:
+            for var in vars:
                 index = variables[var]
                 if index <= i:
                     count += 1
                     ans += aux[index]
             # if ans cannot reach result, is not valid
-            remaining = len(eq["variables"]) - count
+            remaining = len(vars) - count
             lower = ans
             upper = ans + remaining
-            result = eq["result"]
-            if upper < result or lower > result:
+            if upper < res or lower > res:
                 return False
         return True
     
